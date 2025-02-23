@@ -65,3 +65,19 @@ func (c *client) NewRequest(r *Request) *genRequest {
 	gen.setClient(c)
 	return gen
 }
+
+// DefaultClient 默认客户端
+func DefaultClient() *client {
+	if defaultClient != nil {
+		return defaultClient
+	}
+	defaultClient = NewClient()
+	return defaultClient
+}
+
+// SetDefaultClient 默认客户端
+func SetDefaultClient(cli *client) {
+	defaultClientMutex.Lock()
+	defer defaultClientMutex.Unlock()
+	defaultClient = cli
+}

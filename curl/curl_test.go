@@ -1,6 +1,7 @@
 package curl_test
 
 import (
+	"context"
 	"fmt"
 	"github.com/tianlin0/go-plat-curl/curl"
 	"github.com/tianlin0/go-plat-utils/conf"
@@ -76,4 +77,67 @@ func TestGetResponseWithRetry(t *testing.T) {
 	}).Submit(nil)
 
 	//t.Log(conv.String(resp))
+}
+
+type oneInject struct {
+	Begin string
+	After string
+}
+
+func (o *oneInject) BeforeHandler(ctx context.Context, rs *curl.Request, httpReq *http.Request) error {
+	fmt.Println("begin:", o.Begin)
+	return nil
+}
+
+func (o *oneInject) AfterHandler(ctx context.Context, rp *curl.Response) error {
+	fmt.Println("after:", o.After)
+	return nil
+}
+
+func TestGetResponseWithAllHandler(t *testing.T) {
+	conf.SetEnv(conf.EnvLoc)
+
+	defaultClient.WithHandler(&oneInject{
+		Begin: "aaaa",
+		After: "bbbb",
+	})
+
+	_ = defaultClient.NewRequest(&curl.Request{
+		Url:    localUrl,
+		Data:   data,
+		Method: http.MethodGet,
+		Header: nil,
+	}).Submit(nil)
+}
+func TestGetResponseWithAllHandler2(t *testing.T) {
+	conf.SetEnv(conf.EnvLoc)
+
+	curl.SetDefaultHandler(&oneInject{
+		Begin: "eeee",
+		After: "ffff",
+	})
+
+	_ = defaultClient.NewRequest(&curl.Request{
+		Url:    localUrl,
+		Data:   data,
+		Method: http.MethodGet,
+		Header: nil,
+	}).Submit(nil)
+}
+func TestSetDefaultClient(t *testing.T) {
+	conf.SetEnv(conf.EnvLoc)
+
+	cli := curl.DefaultClient()
+	cli = cli.DisableKeepAlives(true).WithHandler(&oneInject{
+		Begin: "pppp",
+		After: "tttt",
+	})
+	curl.SetDefaultClient(cli)
+
+	curl.DefaultClient().NewRequest(&curl.Request{
+		Url:    localUrl,
+		Data:   data,
+		Method: http.MethodGet,
+		Header: nil,
+	}).Submit(nil)
 }

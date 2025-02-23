@@ -159,7 +159,7 @@ func setHeaderValues(h http.Header, key string, values ...string) http.Header {
 }
 
 func getNewUrl(url, method string, dataString string) string {
-	if method != http.MethodGet || dataString == "" {
+	if (method != http.MethodGet && method != http.MethodDelete) || dataString == "" {
 		return url
 	}
 

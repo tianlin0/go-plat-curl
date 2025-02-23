@@ -3,6 +3,7 @@ package curl
 import (
 	jsoniter "github.com/json-iterator/go"
 	"net/http"
+	"sync"
 	"time"
 )
 
@@ -13,7 +14,9 @@ const (
 )
 
 var (
-	defaultHandler InjectHandler
+	defaultClientMutex sync.Mutex
+	defaultClient      *client
+	defaultHandler     InjectHandler
 
 	defaultPrintLogDataLength = 200 //默认打印日志的时候，数据最长，避免显示太多了
 
